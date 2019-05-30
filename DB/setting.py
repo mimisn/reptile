@@ -24,10 +24,36 @@ class Config(object):
         setsession=[],  # 开始会话前执行的命令列表。如：["set datestyle to ...", "set time zone ..."]
         ping=0,
         # ping MySQL服务端，检查是否服务可用。# 如：0 = None = never, 1 = default = whenever it is requested, 2 = when a cursor is created, 4 = when a query is executed, 7 = always
-        host='127.0.0.1',
+        host='192.168.1.222',
         port=3306,
         user='root',
-        password='123456',
-        database='s8day127db',
+        password='xwtec',
+        database='ydyy',
         charset='utf8'
     )
+
+#test
+def func():
+    # 检测当前正在运行连接数的是否小于最大链接数，如果不小于则：等待或报raise TooManyConnections异常
+    # 否则 则优先去初始化时创建的链接中获取链接 SteadyDBConnection。
+    # 然后将SteadyDBConnection对象封装到PooledDedicatedDBConnection中并返回。
+    # 如果最开始创建的链接没有链接，则去创建一个SteadyDBConnection对象，再封装到PooledDedicatedDBConnection中并返回。
+    # 一旦关闭链接后，连接就返回到连接池让后续线程继续使用。
+    conn = Config.PYMYSQL_POOL.connection()
+
+    # print(th, '链接被拿走了', conn1._con)
+    # print(th, '池子里目前有', pool._idle_cache, '\r\n')
+
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute('select name,dept_id from sys_dept')
+    #result = cursor.fetchall()
+    result = cursor.fetchone()
+    class_a = __builtins__.type('a', (object,), result)
+    print(class_a.name)
+    print(class_a.dept_id)
+    print(result)
+    conn.close()
+
+
+if __name__ == '__main__':
+    func()
