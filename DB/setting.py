@@ -28,7 +28,7 @@ class Config(object):
         port=3306,
         user='root',
         password='xwtec',
-        database='ydyy',
+        database='reptile',
         charset='utf8'
     )
 
@@ -41,16 +41,18 @@ def func():
     # 一旦关闭链接后，连接就返回到连接池让后续线程继续使用。
     conn = Config.PYMYSQL_POOL.connection()
 
+
     # print(th, '链接被拿走了', conn1._con)
     # print(th, '池子里目前有', pool._idle_cache, '\r\n')
 
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute('select name,dept_id from sys_dept')
+
+    cursor.execute('select url,id from reptileUrl')
     #result = cursor.fetchall()
     result = cursor.fetchone()
     class_a = __builtins__.type('a', (object,), result)
-    print(class_a.name)
-    print(class_a.dept_id)
+    #print(class_a.name)
+    #print(class_a.dept_id)
     print(result)
     conn.close()
 
