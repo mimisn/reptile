@@ -6,9 +6,8 @@ desc:数据库操作类
 ２、在格式ＳＱＬ中不需要使用引号指定数据类型，系统会根据输入参数自动识别
 ３、在输入的值中不需要使用转意函数，系统会自动处理
 """
-import pymysql
-from DBUtils.PooledDB import PooledDB
 
+import pymysql
 from DB.setting import Config
 
 """
@@ -16,9 +15,22 @@ Config是一些数据库的配置文件
 """
 
 class Mysql(object):
+    """
+        MYSQL数据库对象，负责产生数据库连接 , 此类中的连接采用连接池实现
+        获取连接对象：conn = Mysql.getConn()
+        释放连接对象;conn.close()或del conn
+    """
+    #连接池对象
     __pool = None
     def __init__(self):
-        pass
+        """
+        数据库构造函数，从连接池中取出连接，并生成操作游标
+        """
+#        self._conn = MySQLdb.connect(host=Config.DBHOST , port=Config.DBPORT , user=Config.DBUSER , passwd=Config.DBPWD ,
+#                              db=Config.DBNAME,use_unicode=False,charset=Config.DBCHAR,cursorclass=DictCursor)
+        self._conn = Mysql.__getConn()
+        self._cursor = self._conn.cursor(pymysql.cursors.DictCursor)
+
     @staticmethod
     def __getConn():
         """
@@ -29,24 +41,21 @@ class Mysql(object):
             Mysql.__pool = Config.PYMYSQL_POOL
         return Mysql.__pool.connection()
 
-    @staticmethod
-    def getAll(sql, param=None):
+    def getAll(self,sql,param=None):
         """
         @summary: 执行查询，并取出所有结果集
         @param sql:查询ＳＱＬ，如果有查询条件，请只指定条件列表，并将条件值使用参数[param]传递进来
         @param param: 可选参数，条件列表值（元组/列表）
         @return: result list/boolean 查询到的结果集
         """
-        with Mysql.__getConn() as _conn:
-            _cursor = _conn.cursor()
-            if param is None:
-                count = _cursor.execute(sql)
-            else:
-                count = _cursor.execute(sql,param)
-            if count>0:
-                result = _cursor.fetchall()
-            else:
-                result = False
+        if param is None:
+            count = self._cursor.execute(sql)
+        else:
+            count = self._cursor.execute(sql,param)
+        if count>0:
+            result = self._cursor.fetchall()
+        else:
+            result = False
         return result
 
     def getOne(self,sql,param=None):

@@ -5,6 +5,7 @@ from datetime import timedelta
 import pymysql
 from DBUtils.PooledDB import PooledDB, SharedDBConnection
 
+import DB.MySqlHelper as mysql
 
 class Config(object):
     DEBUG = True
@@ -58,4 +59,9 @@ def func():
 
 
 if __name__ == '__main__':
-    func()
+    #func()
+    test = mysql.Mysql()
+    re = test.getAll('select * from reptileUrl where getstatus=%s limit 100', [0])
+    test.dispose()
+    print(re)
+
