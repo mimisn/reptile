@@ -15,7 +15,7 @@ class Config(object):
     SESSION_TYPE = "redis"
     PYMYSQL_POOL = PooledDB(
         creator=pymysql,  # 使用链接数据库的模块
-        maxconnections=6,  # 连接池允许的最大连接数，0和None表示不限制连接数
+        maxconnections=0,  # 连接池允许的最大连接数，0和None表示不限制连接数
         mincached=2,  # 初始化时，链接池中至少创建的空闲的链接，0表示不创建
         maxcached=5,  # 链接池中最多闲置的链接，0和None不限制
         maxshared=3,
@@ -62,6 +62,9 @@ if __name__ == '__main__':
     #func()
     test = mysql.Mysql()
     re = test.getAll('select * from reptileUrl where getstatus=%s limit 100', [0])
+    #test.update('update reptileUrl set getstatus=1 where id=1')
+    res = test.getAll('select * from reptileUrl where getstatus=%s limit 100', [0])
     test.dispose()
     print(re)
+    print(res)
 

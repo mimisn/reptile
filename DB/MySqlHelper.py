@@ -100,17 +100,25 @@ class Mysql(object):
         @param value:要插入的记录数据tuple/list
         @return: insertId 受影响的行数
         """
-        self._cursor.execute(sql,value)
+        try:
+            self._cursor.execute(sql, value)
+            self._conn.commit()
+        except Exception as e:
+            self._conn.rollback()
         return self.__getInsertId()
 
-    def insertMany(self,sql,values):
+    def insertMany(self, sql, values):
         """
         @summary: 向数据表插入多条记录
         @param sql:要插入的ＳＱＬ格式
         @param values:要插入的记录数据tuple(tuple)/list[list]
         @return: count 受影响的行数
         """
-        count = self._cursor.executemany(sql,values)
+        try:
+            count = self._cursor.executemany(sql, values)
+            self._conn.commit()
+        except Exception as e:
+            self._conn.rollback()
         return count
 
     def __getInsertId(self):
@@ -121,30 +129,34 @@ class Mysql(object):
         result = self._cursor.fetchall()
         return result[0]['id']
 
-    def __query(self,sql,param=None):
-        if param is None:
-            count = self._cursor.execute(sql)
-        else:
-            count = self._cursor.execute(sql,param)
+    def __query(self, sql, param=None):
+        try:
+            if param is None:
+                count = self._cursor.execute(sql)
+            else:
+                count = self._cursor.execute(sql, param)
+            self._conn.commit()
+        except Exception as e:
+            self._conn.rollback()
         return count
 
-    def update(self,sql,param=None):
+    def update(self, sql, param=None):
         """
         @summary: 更新数据表记录
         @param sql: ＳＱＬ格式及条件，使用(%s,%s)
         @param param: 要更新的  值 tuple/list
         @return: count 受影响的行数
         """
-        return self.__query(sql,param)
+        return self.__query(sql, param)
 
-    def delete(self,sql,param=None):
+    def delete(self, sql, param=None):
         """
         @summary: 删除数据表记录
         @param sql: ＳＱＬ格式及条件，使用(%s,%s)
         @param param: 要删除的条件 值 tuple/list
         @return: count 受影响的行数
         """
-        return self.__query(sql,param)
+        return self.__query(sql, param)
 
     def begin(self):
         """
@@ -152,22 +164,22 @@ class Mysql(object):
         """
         self._conn.autocommit(0)
 
-    def end(self,option='commit'):
+    def end(self, option='commit'):
         """
         @summary: 结束事务
         """
-        if option=='commit':
+        if option == 'commit':
             self._conn.commit()
         else:
             self._conn.rollback()
 
-    def dispose(self,isEnd=1):
+    def dispose(self, isEnd=1):
         """
         @summary: 释放连接池资源
         """
-        if isEnd==1:
-            self.end('commit')
-        else:
-            self.end('rollback');
+        # if isEnd == 1:
+        #     self.end('commit')
+        # else:
+        #     self.end('rollback');
         self._cursor.close()
         self._conn.close()

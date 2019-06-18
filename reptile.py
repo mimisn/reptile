@@ -1,6 +1,7 @@
 from multiprocessing import Process
 import requests
 import re
+import DB.MySqlHelper
 proxies = {
   "http": "http://203.202.248.35:8080",
   "http": "http://109.172.51.162:35783",
@@ -14,8 +15,10 @@ headers = {
 
 r = requests.get("https://www.baidu.com/baidu?wd=kk&tn=monline_4_dg&ie=utf-8", headers=headers, verify=False)
 pattern = re.compile(r'href="([a-zA-z]+://[^\s]*)"')
-print(r.text)
+#print(r.text)
 url = re.findall(pattern, r.text)
 print(url)
+for i in url:
+  print(i)
 #print(url[0].split('"'))
 print(len(url))
